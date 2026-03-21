@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <title>Sender Settings</title>
+    <style>
+        :root {
+            --bg: #1c1c1c;
+            --surface: #2a2a2a;
+            --border: #3a3a3a;
+            --text: #c8c8c8;
+            --text-muted: #888;
+            --accent: #4a9eff;
+            --danger: #e05555;
+            --radius: 4px;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 9pt; padding: 8px; }
+
+        .row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+        label { color: var(--text-muted); font-size: 8pt; text-transform: uppercase; letter-spacing: 0.04em; }
+
+        select, input[type="text"] {
+            width: 100%; padding: 5px 8px;
+            background: var(--surface); color: var(--text);
+            border: 1px solid var(--border); border-radius: var(--radius);
+            font-size: 9pt; font-family: var(--font); outline: none;
+        }
+        select:focus, input:focus { border-color: var(--accent); }
+
+        .radio-group { display: flex; gap: 12px; flex-wrap: wrap; }
+        .radio-group label { display: flex; align-items: center; gap: 5px; color: var(--text); text-transform: none; letter-spacing: 0; font-size: 9pt; cursor: pointer; }
+        .radio-group input[type="radio"] { accent-color: var(--accent); cursor: pointer; }
+
+        .input-row { display: flex; gap: 6px; }
+        .input-row input { flex: 1; }
+
+        button {
+            padding: 5px 12px;
+            background: var(--accent); color: #fff;
+            border: none; border-radius: var(--radius);
+            font-size: 9pt; cursor: pointer; white-space: nowrap;
+        }
+        button:hover { filter: brightness(1.15); }
+        button:active { filter: brightness(0.9); }
+        button:disabled { background: var(--border); color: var(--text-muted); cursor: default; }
+
+        .section { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 2px; }
+        .section-title { color: var(--text-muted); font-size: 8pt; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+
+        .status {
+            font-size: 8pt; padding: 4px 8px; border-radius: var(--radius);
+            background: var(--surface); color: var(--text-muted); margin-bottom: 6px;
+        }
+        .status.error { color: var(--danger); }
+        .status.ok { color: #4caf50; }
+        .info-box {
+            font-size: 8pt; padding: 6px 8px; border-radius: var(--radius);
+            background: var(--surface); color: var(--text-muted); border-left: 3px solid var(--accent);
+        }
+        .hidden { display: none !important; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<!-- ===== SENDER SOURCE ===== -->
+<div class="section-title">Sender の指定方法</div>
+
+<div class="row">
+    <div class="radio-group">
+        <label><input type="radio" name="senderMode" value="manual" /> マニュアル</label>
+        <label><input type="radio" name="senderMode" value="bcc" checked /> BCC から参照</label>
+    </div>
+</div>
+
+<!-- Sender Manual -->
+<div id="senderManualSection" class="hidden">
+    <div class="row">
+        <label>IS-04 URL</label>
+        <div class="input-row">
+            <input type="text" id="senderManualUrl" placeholder="http://192.168.x.x:3000" />
+            <button id="senderSearch">検索</button>
+        </div>
+    </div>
+</div>
+
+<!-- Sender BCC -->
+<div id="senderBccSection">
+    <div class="row">
+        <label>BCC ノード</label>
+        <select id="senderBccNode">
+            <option value="">-- ノードを選択 --</option>
+        </select>
+    </div>
+</div>
+
+<!-- Sender status -->
+<div id="senderStatus" class="status hidden"></div>
+
+<!-- Sender dropdown -->
+<div id="senderDropSection" class="hidden">
+    <div class="row">
+        <label>Sender</label>
+        <select id="senderSelect">
+            <option value="">-- Sender を選択 --</option>
+        </select>
+    </div>
+</div>
+
+<hr />
+
+<!-- ===== TARGET RECEIVER ===== -->
+<div class="section-title">ターゲット Receiver の指定方法</div>
+
+<div class="row">
+    <div class="radio-group">
+        <label><input type="radio" name="receiverMode" value="selector" checked /> セレクターボタン</label>
+        <label><input type="radio" name="receiverMode" value="manual" /> マニュアル</label>
+        <label><input type="radio" name="receiverMode" value="bcc" /> BCC から参照</label>
+    </div>
+</div>
+
+<!-- Selector info -->
+<div id="receiverSelectorInfo" class="info-box">
+    実行時にグローバルの「選択中 Receiver」ボタンを使用します。
+</div>
+
+<!-- Receiver Manual -->
+<div id="receiverManualSection" class="hidden">
+    <div class="row">
+        <label>IS-04 URL</label>
+        <div class="input-row">
+            <input type="text" id="receiverManualUrl" placeholder="http://192.168.x.x:3000" />
+            <button id="receiverSearch">検索</button>
+        </div>
+    </div>
+</div>
+
+<!-- Receiver BCC -->
+<div id="receiverBccSection" class="hidden">
+    <div class="row">
+        <label>BCC ノード</label>
+        <select id="receiverBccNode">
+            <option value="">-- ノードを選択 --</option>
+        </select>
+    </div>
+</div>
+
+<!-- Receiver status -->
+<div id="receiverStatus" class="status hidden"></div>
+
+<!-- Receiver dropdown -->
+<div id="receiverDropSection" class="hidden">
+    <div class="row">
+        <label>Receiver</label>
+        <select id="receiverSelect">
+            <option value="">-- Receiver を選択 --</option>
+        </select>
+    </div>
+</div>
+
+<script>
+    let ws, uuid;
+    let settings = {};
+
+    // Resources fetched from IS-04
+    let fetchedSenders = [];
+    let fetchedReceivers = [];
+    let fetchedIs05Url = '';
+    let fetchedIs05Version = '';
+    // Tracks which fetch is "pending": 'sender' | 'receiver' | null
+    let pendingFetch = null;
+
+    // ---------------------------------------------------------------------------
+    // Stream Deck WebSocket handshake
+    // ---------------------------------------------------------------------------
+    function connectElgatoStreamDeckSocket(port, inUUID, inRegisterEvent, _info, inActionInfo) {
+        uuid = inUUID;
+        const actionInfo = JSON.parse(inActionInfo);
+        settings = actionInfo.payload?.settings || {};
+
+        ws = new WebSocket('ws://127.0.0.1:' + port);
+        ws.onopen = () => {
+            ws.send(JSON.stringify({ event: inRegisterEvent, uuid }));
+            sendToPlugin({ event: 'getNodeList' });
+            applySettings();
+        };
+        ws.onmessage = e => {
+            const msg = JSON.parse(e.data);
+            if (msg.event === 'didReceiveSettings') {
+                settings = msg.payload.settings || {};
+                applySettings();
+            } else if (msg.event === 'sendToPropertyInspector') {
+                handlePluginMessage(msg.payload);
+            }
+        };
+    }
+
+    function sendToPlugin(payload) {
+        ws.send(JSON.stringify({ event: 'sendToPlugin', context: uuid, payload }));
+    }
+
+    function saveSettings(patch) {
+        Object.assign(settings, patch);
+        ws.send(JSON.stringify({ event: 'setSettings', context: uuid, payload: settings }));
+    }
+
+    // ---------------------------------------------------------------------------
+    // Plugin → PI messages
+    // ---------------------------------------------------------------------------
+    function handlePluginMessage(payload) {
+        if (payload.event === 'nodeList') {
+            populateBccNodeDropdowns(payload.nodes || []);
+        } else if (payload.event === 'resources') {
+            if (pendingFetch === 'sender') {
+                fetchedSenders = payload.senders || [];
+                fetchedIs05Url = '';       // sender side doesn't cache IS-05
+                fetchedIs05Version = '';
+                populateSenders(fetchedSenders);
+                showStatus('senderStatus', '');
+            } else if (pendingFetch === 'receiver') {
+                fetchedReceivers = payload.receivers || [];
+                fetchedIs05Url = payload.is05Url || '';
+                fetchedIs05Version = payload.is05Version || '';
+                populateReceivers(fetchedReceivers);
+                showStatus('receiverStatus', '');
+            }
+            pendingFetch = null;
+        } else if (payload.event === 'error') {
+            if (pendingFetch === 'sender') showStatus('senderStatus', 'エラー: ' + payload.message, 'error');
+            else showStatus('receiverStatus', 'エラー: ' + payload.message, 'error');
+            pendingFetch = null;
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // UI population
+    // ---------------------------------------------------------------------------
+    function populateBccNodeDropdowns(nodes) {
+        ['senderBccNode', 'receiverBccNode'].forEach(id => {
+            const sel = document.getElementById(id);
+            const prev = sel.value;
+            sel.innerHTML = '<option value="">-- ノードを選択 --</option>';
+            nodes.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n.id;
+                opt.dataset.url = n.is04_url;
+                opt.textContent = n.name || n.id;
+                sel.appendChild(opt);
+            });
+            if (prev) sel.value = prev;
+        });
+        // Restore saved BCC nodes
+        if (settings.senderBccNodeId) document.getElementById('senderBccNode').value = settings.senderBccNodeId;
+        if (settings.receiverBccNodeId) document.getElementById('receiverBccNode').value = settings.receiverBccNodeId;
+    }
+
+    function populateSenders(senders) {
+        const sel = document.getElementById('senderSelect');
+        sel.innerHTML = '<option value="">-- Sender を選択 --</option>';
+        senders.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = '[' + s.format + '] ' + s.label;
+            sel.appendChild(opt);
+        });
+        if (settings.senderId) sel.value = settings.senderId;
+        document.getElementById('senderDropSection').classList.toggle('hidden', senders.length === 0);
+    }
+
+    function populateReceivers(receivers) {
+        const sel = document.getElementById('receiverSelect');
+        sel.innerHTML = '<option value="">-- Receiver を選択 --</option>';
+        receivers.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.id;
+            opt.textContent = '[' + r.format + '] ' + r.label;
+            sel.appendChild(opt);
+        });
+        if (settings.receiverId) sel.value = settings.receiverId;
+        document.getElementById('receiverDropSection').classList.toggle('hidden', receivers.length === 0);
+    }
+
+    function showStatus(elemId, msg, type) {
+        const el = document.getElementById(elemId);
+        el.textContent = msg;
+        el.className = 'status' + (type ? ' ' + type : '') + (msg ? '' : ' hidden');
+    }
+
+    // ---------------------------------------------------------------------------
+    // Apply settings to UI
+    // ---------------------------------------------------------------------------
+    function applySettings() {
+        // Sender mode
+        const sMode = settings.senderMode || 'bcc';
+        const sRadio = document.querySelector('input[name="senderMode"][value="' + sMode + '"]');
+        if (sRadio) sRadio.checked = true;
+        updateSenderModeUI(sMode);
+        if (settings.senderIs04Url) document.getElementById('senderManualUrl').value = settings.senderIs04Url;
+
+        // Receiver mode
+        const rMode = settings.receiverMode || 'selector';
+        const rRadio = document.querySelector('input[name="receiverMode"][value="' + rMode + '"]');
+        if (rRadio) rRadio.checked = true;
+        updateReceiverModeUI(rMode);
+        if (settings.receiverIs04Url) document.getElementById('receiverManualUrl').value = settings.receiverIs04Url;
+
+        // Restore dropdowns if we already have saved values
+        if (settings.senderId && settings.senderLabel) {
+            const sel = document.getElementById('senderSelect');
+            let opt = sel.querySelector('option[value="' + settings.senderId + '"]');
+            if (!opt) {
+                opt = document.createElement('option');
+                opt.value = settings.senderId;
+                opt.textContent = settings.senderLabel;
+                sel.appendChild(opt);
+            }
+            sel.value = settings.senderId;
+            document.getElementById('senderDropSection').classList.remove('hidden');
+        }
+
+        if (settings.receiverId && settings.receiverLabel && rMode !== 'selector') {
+            const sel = document.getElementById('receiverSelect');
+            let opt = sel.querySelector('option[value="' + settings.receiverId + '"]');
+            if (!opt) {
+                opt = document.createElement('option');
+                opt.value = settings.receiverId;
+                opt.textContent = settings.receiverLabel;
+                sel.appendChild(opt);
+            }
+            sel.value = settings.receiverId;
+            document.getElementById('receiverDropSection').classList.remove('hidden');
+        }
+    }
+
+    function updateSenderModeUI(mode) {
+        document.getElementById('senderManualSection').classList.toggle('hidden', mode !== 'manual');
+        document.getElementById('senderBccSection').classList.toggle('hidden', mode !== 'bcc');
+    }
+
+    function updateReceiverModeUI(mode) {
+        document.getElementById('receiverSelectorInfo').classList.toggle('hidden', mode !== 'selector');
+        document.getElementById('receiverManualSection').classList.toggle('hidden', mode !== 'manual');
+        document.getElementById('receiverBccSection').classList.toggle('hidden', mode !== 'bcc');
+        if (mode === 'selector') {
+            document.getElementById('receiverDropSection').classList.add('hidden');
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Event handlers – Sender
+    // ---------------------------------------------------------------------------
+    document.querySelectorAll('input[name="senderMode"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            updateSenderModeUI(radio.value);
+            saveSettings({ senderMode: radio.value });
+            document.getElementById('senderDropSection').classList.add('hidden');
+        });
+    });
+
+    document.getElementById('senderSearch').addEventListener('click', () => {
+        const url = document.getElementById('senderManualUrl').value.trim();
+        if (!url) return;
+        saveSettings({ senderIs04Url: url, senderMode: 'manual' });
+        showStatus('senderStatus', 'IS-04 に接続中...', '');
+        pendingFetch = 'sender';
+        sendToPlugin({ event: 'fetchResources', is04Url: url });
+    });
+
+    document.getElementById('senderBccNode').addEventListener('change', function () {
+        const opt = this.options[this.selectedIndex];
+        const nodeId = this.value;
+        const is04Url = opt?.dataset?.url || '';
+        if (!nodeId || !is04Url) return;
+        saveSettings({ senderBccNodeId: nodeId, senderIs04Url: is04Url, senderMode: 'bcc' });
+        showStatus('senderStatus', 'IS-04 に接続中...', '');
+        pendingFetch = 'sender';
+        sendToPlugin({ event: 'fetchResources', is04Url: is04Url });
+    });
+
+    document.getElementById('senderSelect').addEventListener('change', function () {
+        const senderId = this.value;
+        const label = this.options[this.selectedIndex]?.textContent || '';
+        if (!senderId) return;
+        saveSettings({ senderId, senderLabel: label });
+    });
+
+    // ---------------------------------------------------------------------------
+    // Event handlers – Receiver
+    // ---------------------------------------------------------------------------
+    document.querySelectorAll('input[name="receiverMode"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            updateReceiverModeUI(radio.value);
+            saveSettings({ receiverMode: radio.value });
+            document.getElementById('receiverDropSection').classList.add('hidden');
+        });
+    });
+
+    document.getElementById('receiverSearch').addEventListener('click', () => {
+        const url = document.getElementById('receiverManualUrl').value.trim();
+        if (!url) return;
+        saveSettings({ receiverIs04Url: url, receiverMode: 'manual' });
+        showStatus('receiverStatus', 'IS-04 に接続中...', '');
+        pendingFetch = 'receiver';
+        sendToPlugin({ event: 'fetchResources', is04Url: url });
+    });
+
+    document.getElementById('receiverBccNode').addEventListener('change', function () {
+        const opt = this.options[this.selectedIndex];
+        const nodeId = this.value;
+        const is04Url = opt?.dataset?.url || '';
+        if (!nodeId || !is04Url) return;
+        saveSettings({ receiverBccNodeId: nodeId, receiverIs04Url: is04Url, receiverMode: 'bcc' });
+        showStatus('receiverStatus', 'IS-04 に接続中...', '');
+        pendingFetch = 'receiver';
+        sendToPlugin({ event: 'fetchResources', is04Url: is04Url });
+    });
+
+    document.getElementById('receiverSelect').addEventListener('change', function () {
+        const receiverId = this.value;
+        const label = this.options[this.selectedIndex]?.textContent || '';
+        if (!receiverId) return;
+        saveSettings({
+            receiverId,
+            receiverLabel: label,
+            receiverIs05Url: fetchedIs05Url,
+            receiverIs05Version: fetchedIs05Version,
+        });
+    });
+</script>
+</body>
+</html>
