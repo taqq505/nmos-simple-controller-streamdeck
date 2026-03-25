@@ -66,12 +66,12 @@
 <body>
 
 <!-- ===== SENDER SOURCE ===== -->
-<div class="section-title">Sender の指定方法</div>
+<div class="section-title">Sender Source</div>
 
 <div class="row">
     <div class="radio-group">
-        <label><input type="radio" name="senderMode" value="manual" /> マニュアル</label>
-        <label><input type="radio" name="senderMode" value="bcc" checked /> BCC から参照</label>
+        <label><input type="radio" name="senderMode" value="manual" /> Manual</label>
+        <label><input type="radio" name="senderMode" value="bcc" checked /> From BCC</label>
     </div>
 </div>
 
@@ -81,7 +81,7 @@
         <label>IS-04 URL</label>
         <div class="input-row">
             <input type="text" id="senderManualUrl" placeholder="http://192.168.x.x:3000" />
-            <button id="senderSearch">検索</button>
+            <button id="senderSearch">Search</button>
         </div>
     </div>
 </div>
@@ -89,9 +89,9 @@
 <!-- Sender BCC -->
 <div id="senderBccSection">
     <div class="row">
-        <label>BCC ノード</label>
+        <label>BCC Node</label>
         <select id="senderBccNode">
-            <option value="">-- ノードを選択 --</option>
+            <option value="">-- Select Node --</option>
         </select>
     </div>
 </div>
@@ -104,7 +104,7 @@
     <div class="row">
         <label>Sender</label>
         <select id="senderSelect">
-            <option value="">-- Sender を選択 --</option>
+            <option value="">-- Select Sender --</option>
         </select>
     </div>
 </div>
@@ -112,19 +112,19 @@
 <hr />
 
 <!-- ===== TARGET RECEIVER ===== -->
-<div class="section-title">ターゲット Receiver の指定方法</div>
+<div class="section-title">Target Receiver</div>
 
 <div class="row">
     <div class="radio-group">
-        <label><input type="radio" name="receiverMode" value="selector" checked /> セレクターボタン</label>
-        <label><input type="radio" name="receiverMode" value="manual" /> マニュアル</label>
-        <label><input type="radio" name="receiverMode" value="bcc" /> BCC から参照</label>
+        <label><input type="radio" name="receiverMode" value="selector" checked /> Selector Button</label>
+        <label><input type="radio" name="receiverMode" value="manual" /> Manual</label>
+        <label><input type="radio" name="receiverMode" value="bcc" /> From BCC</label>
     </div>
 </div>
 
 <!-- Selector info -->
 <div id="receiverSelectorInfo" class="info-box">
-    実行時にグローバルの「選択中 Receiver」ボタンを使用します。
+    Uses the globally selected Receiver button at runtime.
 </div>
 
 <!-- Receiver Manual -->
@@ -133,7 +133,7 @@
         <label>IS-04 URL</label>
         <div class="input-row">
             <input type="text" id="receiverManualUrl" placeholder="http://192.168.x.x:3000" />
-            <button id="receiverSearch">検索</button>
+            <button id="receiverSearch">Search</button>
         </div>
     </div>
 </div>
@@ -141,9 +141,9 @@
 <!-- Receiver BCC -->
 <div id="receiverBccSection" class="hidden">
     <div class="row">
-        <label>BCC ノード</label>
+        <label>BCC Node</label>
         <select id="receiverBccNode">
-            <option value="">-- ノードを選択 --</option>
+            <option value="">-- Select Node --</option>
         </select>
     </div>
 </div>
@@ -156,7 +156,7 @@
     <div class="row">
         <label>Receiver</label>
         <select id="receiverSelect">
-            <option value="">-- Receiver を選択 --</option>
+            <option value="">-- Select Receiver --</option>
         </select>
     </div>
 </div>
@@ -229,8 +229,8 @@
             }
             pendingFetch = null;
         } else if (payload.event === 'error') {
-            if (pendingFetch === 'sender') showStatus('senderStatus', 'エラー: ' + payload.message, 'error');
-            else showStatus('receiverStatus', 'エラー: ' + payload.message, 'error');
+            if (pendingFetch === 'sender') showStatus('senderStatus', 'Error: ' + payload.message, 'error');
+            else showStatus('receiverStatus', 'Error: ' + payload.message, 'error');
             pendingFetch = null;
         }
     }
@@ -242,7 +242,7 @@
         ['senderBccNode', 'receiverBccNode'].forEach(id => {
             const sel = document.getElementById(id);
             const prev = sel.value;
-            sel.innerHTML = '<option value="">-- ノードを選択 --</option>';
+            sel.innerHTML = '<option value="">-- Select Node --</option>';
             nodes.forEach(n => {
                 const opt = document.createElement('option');
                 opt.value = n.id;
@@ -259,20 +259,27 @@
 
     function populateSenders(senders) {
         const sel = document.getElementById('senderSelect');
-        sel.innerHTML = '<option value="">-- Sender を選択 --</option>';
+        sel.innerHTML = '<option value="">-- Select Sender --</option>';
         senders.forEach(s => {
             const opt = document.createElement('option');
             opt.value = s.id;
+            opt.dataset.manifestHref = s.manifest_href || '';
             opt.textContent = '[' + s.format + '] ' + s.label;
             sel.appendChild(opt);
         });
-        if (settings.senderId) sel.value = settings.senderId;
+        if (settings.senderId) {
+            sel.value = settings.senderId;
+            // Clear stale senderId if no match found
+            if (!sel.value) {
+                saveSettings({ senderId: undefined, senderLabel: undefined, senderManifestHref: undefined });
+            }
+        }
         document.getElementById('senderDropSection').classList.toggle('hidden', senders.length === 0);
     }
 
     function populateReceivers(receivers) {
         const sel = document.getElementById('receiverSelect');
-        sel.innerHTML = '<option value="">-- Receiver を選択 --</option>';
+        sel.innerHTML = '<option value="">-- Select Receiver --</option>';
         receivers.forEach(r => {
             const opt = document.createElement('option');
             opt.value = r.id;
@@ -364,7 +371,7 @@
         const url = document.getElementById('senderManualUrl').value.trim();
         if (!url) return;
         saveSettings({ senderIs04Url: url, senderMode: 'manual' });
-        showStatus('senderStatus', 'IS-04 に接続中...', '');
+        showStatus('senderStatus', 'Connecting to IS-04...', '');
         pendingFetch = 'sender';
         sendToPlugin({ event: 'fetchResources', is04Url: url });
     });
@@ -373,18 +380,25 @@
         const opt = this.options[this.selectedIndex];
         const nodeId = this.value;
         const is04Url = opt?.dataset?.url || '';
+        const nodeName = opt?.textContent || '';
         if (!nodeId || !is04Url) return;
-        saveSettings({ senderBccNodeId: nodeId, senderIs04Url: is04Url, senderMode: 'bcc' });
-        showStatus('senderStatus', 'IS-04 に接続中...', '');
+        // Clear sender selection on node change to prevent stale state
+        saveSettings({ senderBccNodeId: nodeId, senderIs04Url: is04Url, senderMode: 'bcc',
+            senderNodeLabel: nodeName,
+            senderId: undefined, senderLabel: undefined, senderManifestHref: undefined });
+        document.getElementById('senderDropSection').classList.add('hidden');
+        showStatus('senderStatus', 'Connecting to IS-04...', '');
         pendingFetch = 'sender';
         sendToPlugin({ event: 'fetchResources', is04Url: is04Url });
     });
 
     document.getElementById('senderSelect').addEventListener('change', function () {
         const senderId = this.value;
-        const label = this.options[this.selectedIndex]?.textContent || '';
+        const opt = this.options[this.selectedIndex];
+        const label = opt?.textContent || '';
+        const manifestHref = opt?.dataset?.manifestHref || '';
         if (!senderId) return;
-        saveSettings({ senderId, senderLabel: label });
+        saveSettings({ senderId, senderLabel: label, senderManifestHref: manifestHref });
     });
 
     // ---------------------------------------------------------------------------
@@ -402,7 +416,7 @@
         const url = document.getElementById('receiverManualUrl').value.trim();
         if (!url) return;
         saveSettings({ receiverIs04Url: url, receiverMode: 'manual' });
-        showStatus('receiverStatus', 'IS-04 に接続中...', '');
+        showStatus('receiverStatus', 'Connecting to IS-04...', '');
         pendingFetch = 'receiver';
         sendToPlugin({ event: 'fetchResources', is04Url: url });
     });
@@ -413,7 +427,7 @@
         const is04Url = opt?.dataset?.url || '';
         if (!nodeId || !is04Url) return;
         saveSettings({ receiverBccNodeId: nodeId, receiverIs04Url: is04Url, receiverMode: 'bcc' });
-        showStatus('receiverStatus', 'IS-04 に接続中...', '');
+        showStatus('receiverStatus', 'Connecting to IS-04...', '');
         pendingFetch = 'receiver';
         sendToPlugin({ event: 'fetchResources', is04Url: is04Url });
     });

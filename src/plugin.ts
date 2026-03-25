@@ -49,7 +49,7 @@ wss.on("error", err => {
 // Stream Deck setup
 // ---------------------------------------------------------------------------
 
-streamDeck.logger.setLevel("trace");
+streamDeck.logger.setLevel("warn"); // change to "trace" to re-enable debug logging
 
 streamDeck.actions.registerAction(new ReceiverAction());
 streamDeck.actions.registerAction(new SenderAction());

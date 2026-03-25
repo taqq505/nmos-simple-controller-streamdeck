@@ -6,19 +6,19 @@
 		{
 			"Name": "Receiver",
 			"UUID": "com.taqq505.nmos-simple-controller.receiver",
-			"Icon": "imgs/actions/counter/icon",
+			"Icon": "imgs/actions/receiver/icon",
 			"Tooltip": "NMOS IS-05 Receiver selector. Press to select this receiver as the TAKE target.",
 			"PropertyInspectorPath": "ui/receiver.html",
 			"Controllers": ["Keypad"],
 			"States": [
 				{
 					"Image": "imgs/actions/counter/key",
-					"TitleAlignment": "middle",
+					"TitleAlignment": "bottom",
 					"Title": ""
 				},
 				{
 					"Image": "imgs/actions/counter/key",
-					"TitleAlignment": "middle",
+					"TitleAlignment": "bottom",
 					"Title": ""
 				}
 			]
@@ -26,14 +26,14 @@
 		{
 			"Name": "Sender (TAKE)",
 			"UUID": "com.taqq505.nmos-simple-controller.sender",
-			"Icon": "imgs/actions/counter/icon",
+			"Icon": "imgs/actions/sender/icon",
 			"Tooltip": "NMOS IS-05 Sender. Press to execute TAKE to the target receiver.",
 			"PropertyInspectorPath": "ui/sender.html",
 			"Controllers": ["Keypad"],
 			"States": [
 				{
 					"Image": "imgs/actions/counter/key",
-					"TitleAlignment": "middle",
+					"TitleAlignment": "bottom",
 					"Title": ""
 				}
 			]
@@ -59,8 +59,7 @@
 		}
 	],
 	"Nodejs": {
-		"Version": "20",
-		"Debug": "enabled"
+		"Version": "20"
 	},
 	"UUID": "com.taqq505.nmos-simple-controller"
 }

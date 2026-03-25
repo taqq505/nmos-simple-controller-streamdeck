@@ -61,10 +61,10 @@
 
 <!-- Source mode -->
 <div class="row">
-    <label>Receiver の指定方法</label>
+    <label>Source Mode</label>
     <div class="radio-group">
-        <label><input type="radio" name="sourceMode" value="manual" /> マニュアル</label>
-        <label><input type="radio" name="sourceMode" value="bcc" checked /> BCC から参照</label>
+        <label><input type="radio" name="sourceMode" value="manual" /> Manual</label>
+        <label><input type="radio" name="sourceMode" value="bcc" checked /> From BCC</label>
     </div>
 </div>
 
@@ -74,7 +74,7 @@
         <label>IS-04 URL</label>
         <div class="input-row">
             <input type="text" id="manualUrl" placeholder="http://192.168.x.x:3000" />
-            <button id="manualSearch">検索</button>
+            <button id="manualSearch">Search</button>
         </div>
     </div>
 </div>
@@ -82,9 +82,9 @@
 <!-- BCC mode -->
 <div id="bccSection" class="section">
     <div class="row">
-        <label>BCC ノード</label>
+        <label>BCC Node</label>
         <select id="bccNode">
-            <option value="">-- ノードを選択 --</option>
+            <option value="">-- Select Node --</option>
         </select>
     </div>
 </div>
@@ -97,7 +97,7 @@
     <div class="row">
         <label>Receiver</label>
         <select id="receiverSelect">
-            <option value="">-- Receiver を選択 --</option>
+            <option value="">-- Select Receiver --</option>
         </select>
     </div>
 </div>
@@ -157,7 +157,7 @@
             populateReceivers(fetchedReceivers);
             showStatus('');
         } else if (payload.event === 'error') {
-            showStatus('エラー: ' + payload.message, 'error');
+            showStatus('Error: ' + payload.message, 'error');
         }
     }
 
@@ -167,7 +167,7 @@
     function populateBccNodes(nodes) {
         const sel = document.getElementById('bccNode');
         const prev = sel.value;
-        sel.innerHTML = '<option value="">-- ノードを選択 --</option>';
+        sel.innerHTML = '<option value="">-- Select Node --</option>';
         (nodes || []).forEach(n => {
             const opt = document.createElement('option');
             opt.value = n.id;
@@ -186,7 +186,7 @@
 
     function populateReceivers(receivers) {
         const sel = document.getElementById('receiverSelect');
-        sel.innerHTML = '<option value="">-- Receiver を選択 --</option>';
+        sel.innerHTML = '<option value="">-- Select Receiver --</option>';
         receivers.forEach(r => {
             const opt = document.createElement('option');
             opt.value = r.id;
@@ -255,7 +255,7 @@
         const url = document.getElementById('manualUrl').value.trim();
         if (!url) return;
         saveSettings({ is04Url: url, sourceMode: 'manual' });
-        showStatus('IS-04 に接続中...', '');
+        showStatus('Connecting to IS-04...', '');
         sendToPlugin({ event: 'fetchResources', is04Url: url });
     });
 
@@ -263,9 +263,10 @@
         const opt = this.options[this.selectedIndex];
         const nodeId = this.value;
         const is04Url = opt?.dataset?.url || '';
+        const nodeName = opt?.textContent || '';
         if (!nodeId || !is04Url) return;
-        saveSettings({ bccNodeId: nodeId, is04Url: is04Url, sourceMode: 'bcc' });
-        showStatus('IS-04 に接続中...', '');
+        saveSettings({ bccNodeId: nodeId, is04Url: is04Url, sourceMode: 'bcc', nodeLabel: nodeName });
+        showStatus('Connecting to IS-04...', '');
         sendToPlugin({ event: 'fetchResources', is04Url: is04Url });
     });
 
