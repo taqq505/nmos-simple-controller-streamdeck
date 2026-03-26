@@ -12,12 +12,12 @@
 			"Controllers": ["Keypad"],
 			"States": [
 				{
-					"Image": "imgs/actions/counter/key",
+					"Image": "imgs/actions/receiver/icon",
 					"TitleAlignment": "bottom",
 					"Title": ""
 				},
 				{
-					"Image": "imgs/actions/counter/key",
+					"Image": "imgs/actions/receiver/icon",
 					"TitleAlignment": "bottom",
 					"Title": ""
 				}
@@ -32,7 +32,7 @@
 			"Controllers": ["Keypad"],
 			"States": [
 				{
-					"Image": "imgs/actions/counter/key",
+					"Image": "imgs/actions/sender/icon",
 					"TitleAlignment": "bottom",
 					"Title": ""
 				}
