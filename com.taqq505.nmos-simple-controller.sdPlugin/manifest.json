@@ -46,7 +46,7 @@
 	"Category": "NMOS Simple Controller",
 	"CategoryIcon": "imgs/plugin/category-icon",
 	"CodePath": "bin/plugin.js",
-	"Description": "NMOS IS-05 routing control for Stream Deck",
+	"Description": "NMOS IS-05 routing control for Stream Deck. Works standalone or alongside NMOS Patch GUI (https://taqq505.github.io/nmos-patch-gui/) for a complete broadcast routing workflow.",
 	"Icon": "imgs/plugin/marketplace",
 	"SDKVersion": 3,
 	"Software": {
