@@ -7,3 +7,5 @@ node_modules/
 
 # BCC reference sources (for development reference only)
 _bcc-reference/
+# Packaged plugin (generated artifact)
+*.streamDeckPlugin

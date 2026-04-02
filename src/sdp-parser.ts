@@ -76,7 +76,8 @@ export class SDPParser {
                 if (parts.length >= 5) currentBlock.source_ip = parts[parts.length - 1];
 
             } else if (t.startsWith('a=mid:')) {
-                currentMid = t.split(':')[1].trim().toLowerCase();
+                const midParts = t.split(':');
+                if (midParts.length >= 2) currentMid = midParts[1].trim().toLowerCase();
             }
         }
 

@@ -128,6 +128,7 @@ export class NMOSClient {
     /** Discover IS-04 version and IS-05 endpoint. Must be called before getSenders/getReceivers. */
     async initialize(): Promise<{ is05Url: string; is05Version: string; version: string }> {
         const versions = await this.fetchJSON<string[]>('/x-nmos/node/');
+        if (versions.length === 0) throw new Error('IS-04 node returned no versions');
         this.version = versions.sort().reverse()[0].replace(/\//g, '');
         await this.discoverIS05();
         return {
@@ -159,6 +160,7 @@ export class NMOSClient {
                 } else {
                     this.is05BaseUrl = href;
                     const is05Versions = await this.fetchJSON<string[]>('/x-nmos/connection/', this.is05BaseUrl);
+                    if (is05Versions.length === 0) throw new Error('IS-05 returned no versions');
                     this.is05Version = is05Versions.sort().reverse()[0].replace(/\//g, '');
                 }
                 return;
@@ -177,6 +179,7 @@ export class NMOSClient {
             try {
                 const testUrl = `${url.protocol}//${url.hostname}:${port}`;
                 const versions = await this.fetchJSON<string[]>('/x-nmos/connection/', testUrl);
+                if (versions.length === 0) throw new Error('No versions');
                 this.is05BaseUrl = testUrl;
                 this.is05Version = versions.sort().reverse()[0].replace(/\//g, '');
                 return;
@@ -303,7 +306,7 @@ export async function executeIsTake(
 
     const patchResponse = await patchStaged(patchUrl, patchBody, cookies);
 
-    // Step 7: Wait for activation
+    // Step 7: Short pause before reading active state (20ms is intentional – devices activate quickly)
     await new Promise(resolve => setTimeout(resolve, 20));
 
     // Step 8: GET active state (confirms routing completed)
@@ -365,7 +368,7 @@ async function findStagedPath(
         const probeUrl = is05BaseUrl + base + suffix;
         try {
             const { status, text } = await httpPatch(probeUrl, { activation: { mode: 'activate_immediate' }, master_enable: false });
-            if (status >= 200 && status < 300 || status === 202) {
+            if (status >= 200 && status < 300) {
                 const state = text ? (JSON.parse(text) as StagedState) : null;
                 return { stagedPath: base + suffix, activePath, currentState: state, cookies: '' };
             }

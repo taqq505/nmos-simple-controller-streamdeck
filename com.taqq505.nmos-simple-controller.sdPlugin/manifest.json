@@ -9,7 +9,9 @@
 			"Icon": "imgs/actions/receiver/icon",
 			"Tooltip": "NMOS IS-05 Receiver selector. Press to select this receiver as the TAKE target.",
 			"PropertyInspectorPath": "ui/receiver.html",
-			"Controllers": ["Keypad"],
+			"Controllers": [
+				"Keypad"
+			],
 			"States": [
 				{
 					"Image": "imgs/actions/receiver/icon",
@@ -29,7 +31,9 @@
 			"Icon": "imgs/actions/sender/icon",
 			"Tooltip": "NMOS IS-05 Sender. Press to execute TAKE to the target receiver.",
 			"PropertyInspectorPath": "ui/sender.html",
-			"Controllers": ["Keypad"],
+			"Controllers": [
+				"Keypad"
+			],
 			"States": [
 				{
 					"Image": "imgs/actions/sender/icon",
